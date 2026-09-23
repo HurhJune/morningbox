@@ -6,12 +6,12 @@ disable-model-invocation: true
 
 # morning-board
 
-아래 네 단계를 순서대로 모두 수행한다. 작업 폴더는 `E:\workspace\seintu\morningbox`이다.
+아래 다섯 단계를 순서대로 모두 수행한다. 작업 폴더는 `E:\workspace\seintu\morningbox`이다.
 1·2단계는 서로 독립이므로 한 메시지에서 동시에 호출한다.
 
 ## 비밀값 규칙
 
-- 이 스킬의 1~4단계는 **키가 필요 없다** (연합뉴스 RSS, Open-Meteo 모두 무료·무인증).
+- 이 스킬의 1~5단계는 **API 키가 필요 없다** (연합뉴스 RSS, Open-Meteo 모두 무료·무인증. GitHub 올리기는 gh 로그인을 쓴다).
 - 키가 필요한 일(텔레그램 전송 등)을 덧붙여 시키면, 값을 **`E:\workspace\seintu\morningbox\.env`에서 읽는다** (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`).
 - 토큰 값을 화면, 파일, 로그, 이 스킬 문서 어디에도 출력하거나 적지 않는다. 오류 메시지에 토큰이 섞이면 가린 뒤 보여준다.
 
@@ -127,11 +127,29 @@ https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&daily
    Start-Process 'E:\workspace\seintu\morningbox\dashboard.html'
    ```
 
+## 5단계: 홈페이지에 올리기
+
+만든 화면을 GitHub Pages 홈페이지(https://hurhjune.github.io/morningbox/)에도 반영한다.
+
+1. `dashboard.html`을 `index.html`로 복사한다 (이미 있으면 덮어쓴다).
+   ```bash
+   cd /e/workspace/seintu/morningbox && cp dashboard.html index.html
+   ```
+2. 올린다. 바뀐 것이 없으면 그냥 넘어간다.
+   ```bash
+   cd /e/workspace/seintu/morningbox && git add -A && git commit -m "갱신" && git push
+   ```
+   - `nothing to commit`이 나오면 바뀐 내용이 없다는 뜻이니 그대로 넘어간다.
+   - `.env`는 `.gitignore`에 들어 있어 올라가지 않는다. 올라갈 파일에 `.env`가 보이면 멈추고 사용자에게 알린다.
+   - 올리기가 실패하면 (네트워크, 로그인 만료 등) 1~4단계 결과는 그대로 두고 실패 사실만 알린다. 홈페이지만 예전 내용으로 남는다.
+3. 홈페이지 주소는 https://hurhjune.github.io/morningbox/ 이고, 반영되기까지 1~2분 걸린다.
+
 ## 끝나고 보고할 것
 
 - 고른 기사 3건의 제목과 시각, 그리고 몇 건이 낱말에 걸렸는지 (최근 기사로 채웠다면 그 사실)
 - 날씨 값과 판정, 판정 근거 (비 ○% / 60%, 최저 ○℃ / 10℃)
 - 화면을 띄웠다는 것과, headless 확인에서 본 문제
+- 홈페이지에 올렸는지 (https://hurhjune.github.io/morningbox/), 바뀐 것이 없어 넘어갔다면 그 사실
 - 어느 단계가 실패했다면 그 단계와 이유
 
 ## 알아둘 것
