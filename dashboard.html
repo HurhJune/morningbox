@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 브리핑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* 색·글자 기준: docs/stitch_main_dashboard/DESIGN.md, code.html */
+  :root {
+    --surface: #f8f9ff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #eff4ff;
+    --surface-container: #e5eeff;
+    --surface-container-high: #dce9ff;
+    --on-surface: #0b1c30;
+    --outline: #6c7b6c;            /* 보조 글자색 */
+    --outline-variant: #bbcbb9;
+    --primary: #006d32;
+    --primary-container: #00d166;
+    --primary-fixed: #64ff92;
+    --on-primary-fixed: #00210b;
+    --secondary: #0059bb;
+    --error: #ba1a1a;
+    --error-container: #ffdad6;
+    --on-error-container: #93000a;
+
+    --font-headline: "Space Grotesk", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --font-body: "Inter", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+    --space-4: 1rem;
+    --space-8: 2rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --shadow-ambient: 0 12px 32px rgba(11, 28, 48, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--on-surface);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  /* 상단 바: 반투명 + 블러 (Glass 규칙) */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) 1.5rem;
+    background: rgba(248, 249, 255, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .topbar h1 {
+    margin: 0;
+    font-family: var(--font-headline);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .topbar .date {
+    font-size: 0.8125rem;
+    color: var(--outline);
+  }
+
+  main {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: var(--space-8) 1.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .section-head { padding: 0 0.5rem; margin-bottom: 1.5rem; }
+  .section-head h2 {
+    margin: 0;
+    font-family: var(--font-headline);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-head p {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: var(--outline);
+  }
+
+  /* ── 날씨 상자 ───────────────────────────── */
+  .weather {
+    display: grid;
+    grid-template-columns: 3fr 2fr;   /* 60 : 40 비대칭 */
+    gap: var(--space-4);
+    padding: var(--space-8);
+    border-radius: var(--radius-2xl);
+    background: var(--surface-container-low);
+  }
+  .weather .place {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--outline);
+  }
+  .temps {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    font-family: var(--font-headline);
+  }
+  .temps .max { font-size: 3.5rem; font-weight: 700; line-height: 1; }
+  .temps .min { font-size: 1.75rem; font-weight: 500; color: var(--outline); }
+  .temps .unit { font-size: 0.5em; font-weight: 500; }
+  .temps-label { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--outline); }
+
+  .rain {
+    align-self: end;
+    text-align: right;
+  }
+  .rain .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--outline);
+  }
+  .rain .value {
+    font-family: var(--font-headline);
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--secondary);
+    line-height: 1.1;
+  }
+  .rain .bar {
+    height: 6px;
+    margin-top: 0.5rem;
+    border-radius: 9999px;
+    background: var(--surface-container-high);
+    overflow: hidden;
+  }
+  .rain .bar span {
+    display: block;
+    height: 100%;
+    border-radius: 9999px;
+    background: var(--secondary);
+  }
+
+  .alert-line {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: var(--space-4);
+    padding: var(--space-4) 1.25rem;
+    border-radius: var(--radius-xl);
+    background: var(--surface-container-lowest);
+    box-shadow: var(--shadow-ambient);
+  }
+  .alert-line .text { flex: 1 1 16rem; font-size: 0.9375rem; }
+  .chip {
+    flex: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    background: var(--primary-fixed);
+    color: var(--on-primary-fixed);
+  }
+
+  /* 기준을 넘은 날: 강조색(error 계열) */
+  .weather.is-over { background: var(--error-container); }
+  .weather.is-over .place,
+  .weather.is-over .temps-label,
+  .weather.is-over .rain .label { color: var(--on-error-container); }
+  .weather.is-over .chip { background: var(--error); color: #fff; }
+  .weather.is-over .alert-line .text { color: var(--on-error-container); font-weight: 600; }
+
+  /* ── 뉴스 ───────────────────────────────── */
+  .news {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .news li {
+    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+    background: var(--surface-container-low);
+    transition: background-color 0.15s;
+  }
+  .news li:hover { background: var(--surface-container-high); }
+  .news .meta {
+    font-family: var(--font-headline);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--outline);
+  }
+  .news a {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--on-surface);
+    text-decoration: none;
+  }
+  .news a:hover, .news a:focus-visible { color: var(--primary); text-decoration: underline; }
+  .news .summary {
+    margin: 0.5rem 0 0;
+    font-size: 0.9375rem;
+    color: var(--outline);
+  }
+
+  footer {
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--outline);
+  }
+  footer p { margin: 0.25rem 0; }
+
+  /* 휴대폰 */
+  @media (max-width: 600px) {
+    .topbar { padding: 0.875rem 1.25rem; }
+    main { padding: 1.5rem 1rem 2.5rem; gap: 2.5rem; }
+    .weather { grid-template-columns: 1fr; padding: 1.5rem; }
+    .temps .max { font-size: 3rem; }
+    .rain { text-align: left; }
+    .alert-line { margin-top: 0.5rem; }
+    .news li { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>오늘의 브리핑</h1>
+  <span class="date">2026-09-23 (수)</span>
+</header>
+
+<main>
+
+  <!-- 원본: weather.md, weather_alert.md -->
+  <section aria-labelledby="weather-title">
+    <div class="section-head">
+      <h2 id="weather-title">날씨</h2>
+      <p>기준: 비 올 확률 60% 이상 또는 최저기온 10℃ 이하</p>
+    </div>
+
+    <div class="weather" id="weather" data-rain="8" data-min="17.1">
+      <div>
+        <div class="place">서울특별시</div>
+        <div class="temps">
+          <span class="max">26.4<span class="unit">℃</span></span>
+          <span class="min">17.1<span class="unit">℃</span></span>
+        </div>
+        <div class="temps-label">최고 / 최저</div>
+      </div>
+
+      <div class="rain">
+        <div class="label">비 올 확률</div>
+        <div class="value">8%</div>
+        <div class="bar" aria-hidden="true"><span style="width: 8%"></span></div>
+      </div>
+
+      <div class="alert-line">
+        <span class="chip" id="verdict">기준 미달</span>
+        <span class="text">[2026-09-23 13:25] 서울특별시 · 최고 26.4℃ 최저 17.1℃ · 비 8% · 기준 미달 · 확인함</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 원본: news.md -->
+  <section aria-labelledby="news-title">
+    <div class="section-head">
+      <h2 id="news-title">관심 뉴스</h2>
+      <p>경제 관련 낱말이 든 최신 기사 3건</p>
+    </div>
+
+    <ol class="news">
+      <li>
+        <div class="meta">09-23 12:24 · 연합뉴스</div>
+        <a href="https://www.yna.co.kr/view/AKR20260923097600001" target="_blank" rel="noopener">대미투자 진전 속 한미회담 깜짝성사…'골프'로 시작해 30분 회담</a>
+        <p class="summary">유엔총회 참석차 뉴욕을 찾은 이재명 대통령과 트럼프 미국 대통령이 예고 없이 약 30분간 정상회담을 했고, 대미 투자 협상과 파병 같은 현안이 걸려 있어 회담 성사 자체가 주목받았다.</p>
+      </li>
+      <li>
+        <div class="meta">09-23 12:07 · 연합뉴스</div>
+        <a href="https://www.yna.co.kr/view/AKR20260923097500004" target="_blank" rel="noopener">'삼부 부회장 도피 조력' 코스피 상장사 회장 징역 1년 확정</a>
+        <p class="summary">삼부토건 주가조작 의혹의 핵심 인물인 전 부회장의 도피를 도운 코스피 상장사 회장에게 대법원이 징역 1년을 확정했다.</p>
+      </li>
+      <li>
+        <div class="meta">09-23 12:00 · 연합뉴스</div>
+        <a href="https://www.yna.co.kr/view/AKR20260923061200002" target="_blank" rel="noopener">한은 "추석 앞두고 3조6천억원 규모 화폐 공급"</a>
+        <p class="summary">한국은행이 추석 전 10영업일 동안 3조6천억원 규모의 화폐를 금융기관에 공급했는데, 연휴가 짧아져 지난해보다 17.9% 줄었다.</p>
+      </li>
+    </ol>
+  </section>
+
+  <footer>
+    <p>날씨: Open-Meteo, 2026-09-23 13:25:51 KST 확인</p>
+    <p>뉴스: 연합뉴스 RSS, 2026-09-23 13:25:45 KST 수집</p>
+  </footer>
+
+</main>
+
+<script>
+  // 기준을 넘으면 날씨 상자를 강조색으로 바꾼다
+  (function () {
+    var box = document.getElementById('weather');
+    var over = Number(box.dataset.rain) >= 60 || Number(box.dataset.min) <= 10;
+    if (location.hash === '#preview-over') over = true;  // 강조 화면 미리보기용
+    if (over) {
+      box.classList.add('is-over');
+      document.getElementById('verdict').textContent = '⚠ 기준 넘음';
+    }
+  })();
+</script>
+
+</body>
+</html>
